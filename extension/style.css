@@ -1,0 +1,325 @@
+/* ==========================================================================
+   Laya MLX Xiaohongshu Tagger - Cyberpunk HUD Design System
+   Narrow borders • Cold obsidian base • Neon technical accents • Flat sharp geometry
+   ========================================================================== */
+
+/* Tag container placed seamlessly above/inside note card */
+.laya-tag-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 4px 5px !important;
+  padding: 6px 4px 4px 4px !important;
+  margin-bottom: 4px !important;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", "Fira Code", "JetBrains Mono", "PingFang SC", sans-serif !important;
+  line-height: 1 !important;
+  animation: layaCyberFadeIn 0.2s cubic-bezier(0, 0, 0.2, 1) forwards !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+@keyframes layaCyberFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Base Cyber HUD Badge (Flat, Cold, Sharp, Narrow Border) */
+.laya-pill {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  height: 20px !important;
+  padding: 0 7px 0 6px !important;
+  border-radius: 3px !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.3px !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  cursor: default !important;
+  user-select: none !important;
+  background: rgba(7, 12, 20, 0.92) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #94a3b8 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.15s ease !important;
+}
+
+.laya-pill:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2) !important;
+  border-color: rgba(0, 240, 255, 0.6) !important;
+}
+
+/* Micro Square / Diamond Indicator */
+.laya-pill-dot {
+  width: 4px !important;
+  height: 4px !important;
+  border-radius: 1px !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  background: #00f0ff !important;
+  box-shadow: 0 0 4px currentColor !important;
+}
+
+/* ==========================================================================
+   1. 标题党警示 (Cyber Alert - Glitch Crimson & Safe Cold Matrix)
+   ========================================================================== */
+.laya-pill-clickbait-warning {
+  background: rgba(26, 4, 10, 0.94) !important;
+  color: #ff3366 !important;
+  border: 1px solid #ff0055 !important;
+  box-shadow: 0 0 8px rgba(255, 0, 85, 0.3) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  animation: layaCyberGlitchPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes layaCyberGlitchPulse {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(255, 0, 85, 0.25);
+    border-color: rgba(255, 0, 85, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(255, 0, 85, 0.45);
+    border-color: #ff0055;
+  }
+}
+
+.laya-dot-warning {
+  background: #ff0055 !important;
+  box-shadow: 0 0 6px #ff0055 !important;
+}
+
+.laya-pill-clickbait-safe {
+  background: rgba(4, 20, 14, 0.92) !important;
+  color: #00ff9d !important;
+  border: 1px solid rgba(0, 255, 157, 0.35) !important;
+  box-shadow: 0 0 6px rgba(0, 255, 157, 0.1) !important;
+}
+
+.laya-dot-safe {
+  background: #00ff9d !important;
+  box-shadow: 0 0 4px #00ff9d !important;
+}
+
+/* ==========================================================================
+   2. 选题形态 (Format - Technical Cold Slate)
+   ========================================================================== */
+.laya-pill-format {
+  background: rgba(8, 14, 24, 0.92) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+}
+
+/* ==========================================================================
+   3. 商业变现 (Ad / Commercial vs Organic)
+   ========================================================================== */
+.laya-pill-ad {
+  background: rgba(24, 14, 4, 0.94) !important;
+  color: #ffaa00 !important;
+  border: 1px solid rgba(255, 170, 0, 0.5) !important;
+  box-shadow: 0 0 6px rgba(255, 170, 0, 0.15) !important;
+}
+
+.laya-pill-organic {
+  background: rgba(4, 20, 14, 0.92) !important;
+  color: #00ff9d !important;
+  border: 1px solid rgba(0, 255, 157, 0.35) !important;
+}
+
+/* ==========================================================================
+   4. 爆款潜力评级 (Viral - Cyber Fire Orange)
+   ========================================================================== */
+.laya-pill-viral {
+  background: rgba(24, 8, 4, 0.92) !important;
+  color: #ff6600 !important;
+  border: 1px solid rgba(255, 102, 0, 0.45) !important;
+  box-shadow: 0 0 6px rgba(255, 102, 0, 0.15) !important;
+}
+
+/* ==========================================================================
+   5. 受众人群画像 (Audience - Neon Violet)
+   ========================================================================== */
+.laya-pill-audience {
+  background: rgba(16, 8, 26, 0.92) !important;
+  color: #c084fc !important;
+  border: 1px solid rgba(192, 132, 252, 0.32) !important;
+  font-size: 10px !important;
+}
+
+/* ==========================================================================
+   6. 赛博朋克 HUD 悬浮指示窗 (Cyber Tooltip)
+   ========================================================================== */
+.laya-tooltip {
+  position: absolute !important;
+  bottom: calc(100% + 6px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(3px) !important;
+  background: rgba(5, 9, 16, 0.96) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.4) !important;
+  border-radius: 4px !important;
+  padding: 8px 10px !important;
+  color: #f8fafc !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+  min-width: 150px !important;
+  max-width: 250px !important;
+  white-space: normal !important;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.6) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: all 0.15s ease-out !important;
+  z-index: 99999 !important;
+}
+
+.laya-tooltip::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border-width: 4px !important;
+  border-style: solid !important;
+  border-color: rgba(0, 240, 255, 0.4) transparent transparent transparent !important;
+}
+
+.laya-pill:hover .laya-tooltip {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+.laya-tt-header {
+  font-weight: 700 !important;
+  color: #00f0ff !important;
+  margin-bottom: 2px !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.laya-tt-body {
+  color: #cbd5e1 !important;
+  font-size: 10.5px !important;
+}
+
+.laya-tt-footer {
+  margin-top: 4px !important;
+  padding-top: 4px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #64748b !important;
+  font-size: 9.5px !important;
+  font-family: ui-monospace, SFMono-Regular, monospace !important;
+}
+
+/* ==========================================================================
+   7. 赛博朋克右下角监控浮动仪表 (Cyberpunk HUD Floating Bar)
+   ========================================================================== */
+.laya-floating-bar {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 999999 !important;
+  background: rgba(6, 10, 18, 0.94) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0, 240, 255, 0.45) !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  box-shadow: 0 0 18px rgba(0, 240, 255, 0.15), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace !important;
+  color: #e2e8f0 !important;
+  user-select: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.laya-floating-bar:hover {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.3), 0 10px 28px rgba(0, 0, 0, 0.6) !important;
+}
+
+.laya-fb-content {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+}
+
+.laya-fb-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 1px !important;
+  background: #00ff9d !important;
+  box-shadow: 0 0 8px #00ff9d !important;
+  display: inline-block !important;
+  animation: layaCyberRadar 1.8s infinite ease-in-out !important;
+}
+
+@keyframes layaCyberRadar {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 12px #00ff9d; }
+}
+
+.laya-fb-title {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #00f0ff !important;
+  letter-spacing: 0.6px !important;
+}
+
+.laya-fb-stat {
+  font-size: 10.5px !important;
+  color: #94a3b8 !important;
+  background: rgba(15, 23, 42, 0.9) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  padding: 1px 6px !important;
+  border-radius: 2px !important;
+}
+
+.laya-fb-toggle {
+  border: 1px solid rgba(0, 240, 255, 0.3) !important;
+  outline: none !important;
+  padding: 3px 8px !important;
+  border-radius: 2px !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  letter-spacing: 0.4px !important;
+  transition: all 0.15s ease !important;
+}
+
+.laya-fb-on {
+  background: rgba(0, 240, 255, 0.15) !important;
+  color: #00f0ff !important;
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.25) !important;
+}
+
+.laya-fb-on:hover {
+  background: #00f0ff !important;
+  color: #050910 !important;
+}
+
+.laya-fb-off {
+  background: rgba(15, 23, 42, 0.8) !important;
+  color: #64748b !important;
+  border-color: #334155 !important;
+}
+
+.laya-fb-off:hover {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+}

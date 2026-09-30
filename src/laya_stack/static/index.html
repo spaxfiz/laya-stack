@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laya MLX Decision Studio - 决策推理全功能体验</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            },
+            surface: {
+              800: '#1e2330',
+              900: '#111622',
+              950: '#090d16',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111622;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2d3748;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4a5568;
+    }
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, rgba(99,102,241,0.2) 0%, rgba(168,85,247,0.1) 100%);
+    }
+  </style>
+</head>
+<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-slate-800/80 bg-surface-900/90 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-purple-500 flex items-center justify-center font-bold text-white shadow-lg shadow-brand-500/25">
+        L
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold tracking-tight text-white">Laya MLX Decision Studio</h1>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> MLX Metal 加速
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">零 JSON 手写 • 纯可视化构建 • 非自回归单次前向决策</p>
+      </div>
+    </div>
+
+    <!-- Hardware & Model Info Pills -->
+    <div class="flex items-center gap-2 flex-wrap text-xs">
+      <div class="px-3 py-1.5 rounded-lg bg-surface-800 border border-slate-700/60 text-slate-300 flex items-center gap-1.5">
+        <span class="text-slate-500">模型:</span>
+        <span id="model-name-text" class="font-mono text-brand-400 font-semibold">加载中...</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-lg bg-surface-800 border border-slate-700/60 text-slate-300 flex items-center gap-1.5">
+        <span class="text-slate-500">设备:</span>
+        <span id="device-text" class="font-mono text-emerald-400">Apple Silicon</span>
+      </div>
+      <div class="px-3 py-1.5 rounded-lg bg-surface-800 border border-slate-700/60 text-slate-300 flex items-center gap-1.5">
+        <span class="text-slate-500">延迟:</span>
+        <span id="global-latency-text" class="font-mono text-amber-400 font-bold">-- ms</span>
+      </div>
+      <a href="https://nandhakishorm.github.io/laya/structured/" target="_blank" class="px-3 py-1.5 rounded-lg bg-brand-600/20 hover:bg-brand-600/30 border border-brand-500/30 text-brand-300 flex items-center gap-1 transition">
+        <span>官方文档 ↗</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="border-b border-slate-800 bg-surface-900/60 px-6 py-2 overflow-x-auto">
+    <div class="flex items-center gap-1 min-w-max">
+      <button onclick="switchTab('structured')" id="tab-btn-structured" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 bg-brand-600 text-white shadow-sm shadow-brand-500/20">
+        <span>📋 可视化 Schema 决策</span>
+        <span class="text-[10px] bg-brand-700/80 px-1.5 py-0.5 rounded text-brand-100">纯点选</span>
+      </button>
+      <button onclick="switchTab('presets')" id="tab-btn-presets" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-surface-800">
+        <span>🧰 官方业务预设 (Presets)</span>
+      </button>
+      <button onclick="switchTab('shortlist')" id="tab-btn-shortlist" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-surface-800">
+        <span>🎯 向量初筛 (Shortlist)</span>
+      </button>
+      <button onclick="switchTab('lang')" id="tab-btn-lang" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-surface-800">
+        <span>🌐 语言与路由分析</span>
+      </button>
+      <button onclick="switchTab('complex')" id="tab-btn-complex" class="tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-surface-800">
+        <span>📦 字典与多轮对话状态</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Workspace Container -->
+  <main class="flex-1 max-w-[1600px] w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Input & Visual Builder (5 cols) -->
+    <div class="lg:col-span-5 flex flex-col gap-5">
+      
+      <!-- Preset Examples Selector Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between mb-2.5">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <span>💡 快捷示例库 (一键自动装载)</span>
+          </label>
+          <span class="text-[11px] text-slate-500" id="example-count-hint">点击载入对应输入与决策字段</span>
+        </div>
+        <div id="example-pills-container" class="flex flex-wrap gap-2">
+          <!-- Dynamic example pills inserted here -->
+        </div>
+      </div>
+
+      <!-- State Input Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <span>输入状态 (State)</span>
+            <span class="text-[10px] text-slate-500 font-normal">待评估的文本、上下文或用户输入</span>
+          </label>
+          <button onclick="clearStateInput()" class="text-xs text-slate-400 hover:text-slate-300 transition">清空文本</button>
+        </div>
+        <textarea id="input-state" rows="4" class="w-full bg-surface-950 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-lg p-3 text-sm text-slate-200 resize-y placeholder-slate-600 transition leading-relaxed" placeholder="输入待评估的状态文本..."></textarea>
+      </div>
+
+      <!-- Tab Specific Controls Container (Visual Schema Builder) -->
+      <div id="tab-controls-container" class="bg-surface-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col gap-4">
+        <!-- Injected depending on active tab -->
+      </div>
+
+      <!-- Run Action Bar -->
+      <div class="flex items-center gap-3">
+        <button id="run-btn" onclick="executeInference()" class="flex-1 py-3 px-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 transition active:scale-[0.99] disabled:opacity-50">
+          <svg id="run-spinner" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span id="run-btn-text">立即运行推理 (Run Inference)</span>
+          <span class="text-xs bg-white/20 px-2 py-0.5 rounded font-mono font-normal">⌘+Enter</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Output & Visualizations (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col gap-5">
+      
+      <!-- Metrics & Token Bar -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400">推理耗时:</span>
+            <span id="metric-latency" class="font-mono text-emerald-400 font-bold">-- ms</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400">输入 Tokens:</span>
+            <span id="metric-in-tokens" class="font-mono text-brand-400">0</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400">输出 Tokens:</span>
+            <span class="font-mono text-slate-300">0 <span class="text-[10px] text-slate-500">(非自回归直接输出)</span></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyOutputJson()" class="px-2.5 py-1 rounded bg-surface-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center gap-1">
+            <span id="copy-btn-text">复制结果 JSON</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Visualized Decision Results Card -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-5 shadow-sm flex flex-col min-h-[400px]">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 mb-4">
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <span>📊 推理决策结果与概率分布</span>
+            <span id="result-status-tag" class="text-[11px] px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-normal">等待推理</span>
+          </h2>
+          <span class="text-xs text-slate-400" id="result-summary-hint">单次前向传播 • 校准置信度</span>
+        </div>
+
+        <!-- Dynamic Visualization Area -->
+        <div id="visual-results-area" class="flex-1 flex flex-col justify-center items-center text-slate-500 py-12">
+          <div class="w-12 h-12 rounded-2xl bg-surface-800 border border-slate-700/60 flex items-center justify-center text-slate-400 mb-3 text-xl">
+            ⚡
+          </div>
+          <p class="text-sm font-medium text-slate-400">尚未执行推理</p>
+          <p class="text-xs text-slate-500 mt-1">在左侧点选字段或调整参数后，点击「立即运行推理」</p>
+        </div>
+      </div>
+
+      <!-- Raw JSON Response Accordion -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-semibold text-slate-400 hover:text-slate-200 transition">
+            <span class="flex items-center gap-2">
+              <span>完整后端响应 (Raw JSON Payload)</span>
+            </span>
+            <span class="transition group-open:rotate-180">▼</span>
+          </summary>
+          <div class="mt-3 pt-3 border-t border-slate-800/80">
+            <pre id="raw-json-output" class="mono text-xs text-slate-300 bg-surface-950 p-3 rounded-lg overflow-x-auto max-h-[300px] border border-slate-800/60">// 响应数据将在此显示</pre>
+          </div>
+        </details>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="mt-auto border-t border-slate-800/60 bg-surface-900/40 py-3 text-center text-xs text-slate-500">
+    Laya MLX Decision Engine • 基于 Apple Silicon MLX 架构 • 零手写 JSON 可视化点选决策构建器
+  </footer>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 px-4 py-2.5 rounded-xl bg-surface-800 border border-slate-700 text-white text-xs shadow-2xl flex items-center gap-2 translate-y-20 opacity-0 transition-all duration-300 pointer-events-none z-50">
+    <span id="toast-icon">✓</span>
+    <span id="toast-msg">操作成功</span>
+  </div>
+
+  <script>
+    // Global State
+    let currentTab = 'structured';
+    let examplesData = null;
+    let serverInfo = null;
+
+    // Visual Schema Fields State (No JSON typing required!)
+    let visualFields = [];
+    let fieldCounter = 1;
+
+    // Visual Shortlist Criteria State
+    let visualShortlistCriteria = [];
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', async () => {
+      await fetchServerInfo();
+      await fetchExamples();
+      switchTab('structured');
+
+      // Bind Cmd+Enter / Ctrl+Enter shortcut
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          executeInference();
+        }
+      });
+    });
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      toastMsg.textContent = msg;
+      toastIcon.textContent = isError ? '⚠' : '✓';
+      toast.className = `fixed bottom-6 right-6 px-4 py-2.5 rounded-xl text-white text-xs shadow-2xl flex items-center gap-2 transition-all duration-300 z-50 ${isError ? 'bg-red-900/90 border border-red-700' : 'bg-slate-800 border border-slate-700'}`;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    async function fetchServerInfo() {
+      try {
+        const res = await fetch('/api/info');
+        if (res.ok) {
+          serverInfo = await res.json();
+          document.getElementById('model-name-text').textContent = serverInfo.model;
+          document.getElementById('device-text').textContent = `${serverInfo.device} (${serverInfo.dtype})`;
+        }
+      } catch (e) {
+        console.error('Failed to fetch info:', e);
+      }
+    }
+
+    async function fetchExamples() {
+      try {
+        const res = await fetch('/api/examples');
+        if (res.ok) {
+          examplesData = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to fetch examples:', e);
+      }
+    }
+
+    // Tab Switching Logic
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Update nav button active states
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-surface-800';
+      });
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeBtn) {
+        activeBtn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-sm font-medium transition flex items-center gap-2 bg-brand-600 text-white shadow-sm shadow-brand-500/20';
+      }
+
+      // Render tab-specific controls and example pills
+      renderTabControls(tab);
+      renderExamplePills(tab);
+    }
+
+    // -------------------------------------------------------------
+    // VISUAL FIELD BUILDER LOGIC (Pure GUI, Auto Keys, No JSON)
+    // -------------------------------------------------------------
+
+    function generateKey(type, desc = '') {
+      // Auto-extract meaningful key from description if present
+      const cleanDesc = desc.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim();
+      const words = cleanDesc.split(/\s+/).filter(w => w.length > 2 && !['what', 'which', 'should', 'this', 'does', 'level', 'rate', 'from'].includes(w));
+      if (words.length > 0) {
+        const base = words.slice(0, 2).join('_');
+        // Ensure uniqueness
+        if (!visualFields.some(f => f.key === base)) return base;
+      }
+      return `${type}_${fieldCounter++}`;
+    }
+
+    function addVisualField(type) {
+      const id = 'field_' + Math.random().toString(36).substr(2, 9);
+      let newField = { id, type, key: generateKey(type) };
+
+      if (type === 'choice') {
+        newField.description = '选择最匹配的分类';
+        newField.options = ['选项A', '选项B', '选项C'];
+      } else if (type === 'score') {
+        newField.description = '评估量化等级';
+        newField.min = 0;
+        newField.max = 2;
+      } else if (type === 'noul') {
+        newField.description = '判断条件是否成立';
+      }
+
+      visualFields.push(newField);
+      renderVisualFieldsList();
+      showToast(`已添加【${type === 'choice' ? '单选' : type === 'score' ? '评分' : '是非'}】字段`);
+    }
+
+    function removeVisualField(id) {
+      visualFields = visualFields.filter(f => f.id !== id);
+      renderVisualFieldsList();
+    }
+
+    function updateFieldProp(id, prop, val) {
+      const field = visualFields.find(f => f.id === id);
+      if (field) {
+        field[prop] = val;
+        // If user changed description and key is default, auto-suggest key
+        if (prop === 'description' && field.key.startsWith(field.type + '_')) {
+          field.key = generateKey(field.type, val);
+          const keyInput = document.getElementById(`key-input-${id}`);
+          if (keyInput) keyInput.value = field.key;
+        }
+        updateSchemaPreview();
+      }
+    }
+
+    function addChoiceOption(id) {
+      const input = document.getElementById(`new-opt-input-${id}`);
+      const val = input.value.trim();
+      if (!val) return;
+      const field = visualFields.find(f => f.id === id);
+      if (field && !field.options.includes(val)) {
+        field.options.push(val);
+        input.value = '';
+        renderVisualFieldsList();
+      }
+    }
+
+    function removeChoiceOption(id, optIdx) {
+      const field = visualFields.find(f => f.id === id);
+      if (field) {
+        field.options.splice(optIdx, 1);
+        renderVisualFieldsList();
+      }
+    }
+
+    function applyQuickPresetOptions(id, opts) {
+      const field = visualFields.find(f => f.id === id);
+      if (field) {
+        field.options = [...opts];
+        renderVisualFieldsList();
+        showToast('已载入选项预设');
+      }
+    }
+
+    function renderVisualFieldsList() {
+      const container = document.getElementById('visual-fields-list');
+      if (!container) return;
+
+      if (visualFields.length === 0) {
+        container.innerHTML = `
+          <div class="py-8 text-center border-2 border-dashed border-slate-800 rounded-xl bg-surface-950/50">
+            <p class="text-xs text-slate-400 mb-2">暂无决策字段</p>
+            <p class="text-[11px] text-slate-500">点击下方按钮添加单选 (Choice)、评分 (Score) 或是非 (Noul) 字段</p>
+          </div>
+        `;
+        updateSchemaPreview();
+        return;
+      }
+
+      let html = '';
+      visualFields.forEach((f, idx) => {
+        const isChoice = f.type === 'choice';
+        const isScore = f.type === 'score';
+        const isNoul = f.type === 'noul';
+
+        let badgeBg = isChoice ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' :
+                      isScore ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' :
+                                'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+        let typeName = isChoice ? '单选 (Choice)' : isScore ? '评分 (Score)' : '是非 (Noul)';
+        let typeIcon = isChoice ? '🏷️' : isScore ? '🎚️' : '🔘';
+
+        html += `
+          <div class="bg-surface-950 border border-slate-800/90 rounded-xl p-3.5 flex flex-col gap-3 relative transition hover:border-slate-700 shadow-sm">
+            <!-- Card Top Bar: Type, Key, Delete -->
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold px-2 py-0.5 rounded border ${badgeBg} flex items-center gap-1">
+                  <span>${typeIcon}</span>
+                  <span>${typeName}</span>
+                </span>
+                <div class="flex items-center gap-1 text-xs">
+                  <span class="text-slate-500 text-[11px]">Key:</span>
+                  <input id="key-input-${f.id}" type="text" value="${escapeHtml(f.key)}" onchange="updateFieldProp('${f.id}', 'key', this.value)" class="bg-surface-900 border border-slate-800 hover:border-slate-700 focus:border-brand-500 rounded px-2 py-0.5 text-xs text-brand-300 mono w-28 sm:w-36 transition font-medium" title="自动生成的唯一字段名，可自由修改">
+                </div>
+              </div>
+              <button onclick="removeVisualField('${f.id}')" class="text-slate-500 hover:text-red-400 p-1 rounded transition text-xs flex items-center gap-0.5" title="删除此字段">
+                <span>✕</span>
+              </button>
+            </div>
+
+            <!-- Description / Instructions Input -->
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">决策描述与判决标准 (Description / 指令):</label>
+              <input type="text" value="${escapeHtml(f.description || '')}" oninput="updateFieldProp('${f.id}', 'description', this.value)" class="w-full bg-surface-900 border border-slate-800 focus:border-brand-500 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 transition" placeholder="例如：判断工单该由哪个部门处理...">
+            </div>
+
+            <!-- Type-Specific Visual Interactive Controls -->
+        `;
+
+        if (isChoice) {
+          html += `
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] text-slate-400">单选候选选项 (点选/添加):</span>
+                <!-- Quick option presets -->
+                <div class="flex items-center gap-1 text-[10px]">
+                  <span class="text-slate-500">快捷填充:</span>
+                  <button onclick="applyQuickPresetOptions('${f.id}', ['高', '中', '低'])" class="px-1.5 py-0.5 bg-surface-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">高中低</button>
+                  <button onclick="applyQuickPresetOptions('${f.id}', ['通过', '拒绝', '人工复核'])" class="px-1.5 py-0.5 bg-surface-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">审核</button>
+                  <button onclick="applyQuickPresetOptions('${f.id}', ['正面', '中立', '负面'])" class="px-1.5 py-0.5 bg-surface-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">情感</button>
+                </div>
+              </div>
+
+              <!-- Options Chip Container -->
+              <div class="flex flex-wrap gap-1.5 mb-2">
+                ${f.options.map((opt, optIdx) => `
+                  <span class="inline-flex items-center gap-1 bg-surface-900 text-indigo-300 border border-indigo-500/30 rounded-lg px-2 py-0.5 text-xs font-mono">
+                    <span>${escapeHtml(opt)}</span>
+                    <button onclick="removeChoiceOption('${f.id}', ${optIdx})" class="text-indigo-400 hover:text-red-400 ml-0.5 text-[10px]">✕</button>
+                  </span>
+                `).join('')}
+              </div>
+
+              <!-- Add Option Input -->
+              <div class="flex items-center gap-1.5">
+                <input id="new-opt-input-${f.id}" type="text" onkeydown="if(event.key==='Enter') { event.preventDefault(); addChoiceOption('${f.id}'); }" class="flex-1 bg-surface-900 border border-slate-800 focus:border-brand-500 rounded-lg px-2.5 py-1 text-xs text-slate-200" placeholder="输入新选项名称后回车...">
+                <button onclick="addChoiceOption('${f.id}')" class="px-2.5 py-1 rounded-lg bg-surface-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs transition">添加选项</button>
+              </div>
+            </div>
+          `;
+        } else if (isScore) {
+          const min = parseInt(f.min !== undefined ? f.min : 0, 10);
+          const max = parseInt(f.max !== undefined ? f.max : 2, 10);
+          const steps = [];
+          for (let s = min; s <= max; s++) steps.push(s);
+
+          html += `
+            <div class="pt-2 border-t border-slate-800/80 flex flex-col gap-2">
+              <div class="flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-slate-400">打分区间 (滑动设置):</span>
+                  <span class="font-mono text-purple-400 font-bold text-xs">[ ${min} ~ ${max} ]</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-1">
+                    <span class="text-[10px] text-slate-500">Min:</span>
+                    <input type="number" min="0" max="5" value="${min}" onchange="updateFieldProp('${f.id}', 'min', parseInt(this.value, 10)); renderVisualFieldsList();" class="w-12 bg-surface-900 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 text-center mono">
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-[10px] text-slate-500">Max:</span>
+                    <input type="number" min="1" max="10" value="${max}" onchange="updateFieldProp('${f.id}', 'max', parseInt(this.value, 10)); renderVisualFieldsList();" class="w-12 bg-surface-900 border border-slate-800 rounded px-1.5 py-0.5 text-xs text-slate-200 text-center mono">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Visual scale preview -->
+              <div class="flex items-center gap-1 overflow-x-auto py-1">
+                ${steps.map(s => `
+                  <span class="px-2.5 py-1 rounded bg-surface-900 border border-purple-500/20 text-purple-300 font-mono text-xs flex-1 text-center font-bold">
+                    ${s}
+                  </span>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } else if (isNoul) {
+          html += `
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+              <span class="text-[11px] text-slate-400">是非判断输出:</span>
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono">True (是, ≥0.5)</span>
+                <span class="text-slate-600">/</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-xs font-mono">False (否, &lt;0.5)</span>
+              </div>
+            </div>
+          `;
+        }
+
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
+      updateSchemaPreview();
+    }
+
+    // Compile visual fields into standard JSON Schema object
+    function compileVisualSchema() {
+      const properties = {};
+      visualFields.forEach(f => {
+        const k = f.key || `field_${f.id}`;
+        if (f.type === 'choice') {
+          properties[k] = {
+            type: 'string',
+            enum: (f.options && f.options.length) ? f.options : ['yes', 'no'],
+            description: f.description || `Classify ${k}`
+          };
+        } else if (f.type === 'score') {
+          properties[k] = {
+            type: 'integer',
+            minimum: parseInt(f.min !== undefined ? f.min : 0, 10),
+            maximum: parseInt(f.max !== undefined ? f.max : 2, 10),
+            description: f.description || `Score ${k}`
+          };
+        } else if (f.type === 'noul') {
+          properties[k] = {
+            type: 'boolean',
+            description: f.description || `Is ${k} true?`
+          };
+        }
+      });
+      return { type: 'object', properties };
+    }
+
+    function updateSchemaPreview() {
+      const el = document.getElementById('auto-schema-preview');
+      if (el) {
+        el.textContent = JSON.stringify(compileVisualSchema(), null, 2);
+      }
+    }
+
+    // Convert raw schema object from examples into visualFields
+    function importSchemaToVisualFields(schema) {
+      visualFields = [];
+      fieldCounter = 1;
+      if (!schema || !schema.properties) return;
+
+      for (const [key, prop] of Object.entries(schema.properties)) {
+        const id = 'field_' + Math.random().toString(36).substr(2, 9);
+        if (prop.enum || prop.type === 'string') {
+          visualFields.push({
+            id,
+            key,
+            type: 'choice',
+            description: prop.description || '',
+            options: prop.enum ? [...prop.enum] : ['option_1', 'option_2']
+          });
+        } else if (prop.type === 'integer' || (prop.minimum !== undefined && prop.maximum !== undefined)) {
+          visualFields.push({
+            id,
+            key,
+            type: 'score',
+            description: prop.description || '',
+            min: prop.minimum !== undefined ? prop.minimum : 0,
+            max: prop.maximum !== undefined ? prop.maximum : 2
+          });
+        } else if (prop.type === 'boolean') {
+          visualFields.push({
+            id,
+            key,
+            type: 'noul',
+            description: prop.description || ''
+          });
+        }
+      }
+      renderVisualFieldsList();
+    }
+
+    // -------------------------------------------------------------
+    // RENDER TAB CONTROLS
+    // -------------------------------------------------------------
+
+    function renderTabControls(tab) {
+      const container = document.getElementById('tab-controls-container');
+      
+      if (tab === 'structured') {
+        container.innerHTML = `
+          <div class="flex flex-col gap-3.5">
+            <!-- Header with Quick Add Buttons -->
+            <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-800/80">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                <span>📋 决策字段列表 (Key 自动生成)</span>
+              </label>
+              <div class="flex items-center gap-1.5">
+                <button onclick="addVisualField('choice')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 transition">
+                  <span>+ 单选 (Choice)</span>
+                </button>
+                <button onclick="addVisualField('score')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 flex items-center gap-1 transition">
+                  <span>+ 评分 (Score)</span>
+                </button>
+                <button onclick="addVisualField('noul')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 transition">
+                  <span>+ 是非 (Noul)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Dynamic Field Cards List -->
+            <div id="visual-fields-list" class="flex flex-col gap-3 max-h-[460px] overflow-y-auto pr-1">
+              <!-- Field cards rendered dynamically -->
+            </div>
+
+            <!-- Confidence Gating Slider -->
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-300 font-medium">置信度门控 (min_confidence):</span>
+                <span id="min-conf-val" class="font-mono text-xs text-brand-400 font-bold">0.0</span>
+              </div>
+              <input type="range" id="min-conf-slider" min="0" max="1" step="0.05" value="0.0" oninput="document.getElementById('min-conf-val').textContent = this.value" class="w-36 accent-brand-500">
+            </div>
+            <p class="text-[11px] text-slate-500">若模型判定置信度低于此阈值，系统自动进行安全降级（字段标记为 null 触发人工审核）。</p>
+
+            <!-- Optional Collapsible Schema View -->
+            <details class="text-[11px] text-slate-500 group">
+              <summary class="cursor-pointer hover:text-slate-400 flex items-center justify-between">
+                <span>查看后台自动生成的 JSON Schema (只读)</span>
+                <span class="group-open:rotate-180 transition">▼</span>
+              </summary>
+              <pre id="auto-schema-preview" class="mono text-[10px] text-slate-400 bg-surface-950 p-2.5 rounded border border-slate-800 mt-2 max-h-36 overflow-y-auto">// 自动生成</pre>
+            </details>
+          </div>
+        `;
+        renderVisualFieldsList();
+
+      } else if (tab === 'presets') {
+        container.innerHTML = `
+          <div class="flex flex-col gap-3">
+            <label class="text-xs font-semibold uppercase tracking-wider text-slate-400">选择官方预设模块 (点击即刻切换)</label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <button onclick="selectPreset('triage')" id="preset-btn-triage" class="preset-sel-btn p-2.5 rounded-lg border border-brand-500 bg-brand-500/10 text-left transition">
+                <div class="font-semibold text-xs text-white">triage (工单分诊)</div>
+                <div class="text-[10px] text-slate-400">意图、紧急度、愤怒值、退款与流失</div>
+              </button>
+              <button onclick="selectPreset('email')" id="preset-btn-email" class="preset-sel-btn p-2.5 rounded-lg border border-slate-800 bg-surface-950 text-left hover:border-slate-700 transition">
+                <div class="font-semibold text-xs text-white">email (邮件过滤)</div>
+                <div class="text-[10px] text-slate-400">分类、垃圾、钓鱼、紧迫、需回复</div>
+              </button>
+              <button onclick="selectPreset('guard')" id="preset-btn-guard" class="preset-sel-btn p-2.5 rounded-lg border border-slate-800 bg-surface-950 text-left hover:border-slate-700 transition">
+                <div class="font-semibold text-xs text-white">guard (输入护栏)</div>
+                <div class="text-[10px] text-slate-400">越狱、注入、敏感数据、危害分级</div>
+              </button>
+              <button onclick="selectPreset('moderation')" id="preset-btn-moderation" class="preset-sel-btn p-2.5 rounded-lg border border-slate-800 bg-surface-950 text-left hover:border-slate-700 transition">
+                <div class="font-semibold text-xs text-white">moderation (安全审核)</div>
+                <div class="text-[10px] text-slate-400">毒性、骚扰、威胁、垃圾、严重度</div>
+              </button>
+              <button onclick="selectPreset('router')" id="preset-btn-router" class="preset-sel-btn p-2.5 rounded-lg border border-slate-800 bg-surface-950 text-left hover:border-slate-700 transition">
+                <div class="font-semibold text-xs text-white">router (智能路由)</div>
+                <div class="text-[10px] text-slate-400">难度、领域、需调用工具、敏感性</div>
+              </button>
+            </div>
+            <input type="hidden" id="active-preset-name" value="triage">
+          </div>
+        `;
+      } else if (tab === 'shortlist') {
+        container.innerHTML = `
+          <div class="flex flex-col gap-3.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+              <label class="text-xs font-semibold uppercase tracking-wider text-slate-300">🎯 向量检索初筛数量 Top-K:</label>
+              <div class="flex items-center gap-2">
+                <span id="shortlist-k-val" class="font-mono text-xs text-brand-400 font-bold">3</span>
+                <input type="range" id="shortlist-k" min="2" max="6" value="3" oninput="document.getElementById('shortlist-k-val').textContent = this.value" class="w-32 accent-brand-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="text-xs text-slate-400 block mb-1">决策指令 (Instructions):</label>
+              <input type="text" id="shortlist-instructions" class="w-full bg-surface-950 border border-slate-800 focus:border-brand-500 rounded-lg p-2 text-xs text-slate-200" placeholder="例如：选择处理此请求的最佳工具...">
+            </div>
+
+            <!-- Visual Criteria Pool Builder -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs text-slate-300 font-semibold">候选选项池 (点选编辑，零手写 JSON):</label>
+                <button onclick="addShortlistCandidate()" class="px-2 py-0.5 rounded text-xs bg-brand-500/20 text-brand-300 border border-brand-500/30 hover:bg-brand-500/30 transition">+ 新增候选</button>
+              </div>
+
+              <!-- List of Criteria Cards -->
+              <div id="shortlist-criteria-list" class="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        `;
+        renderShortlistCriteriaList();
+
+      } else if (tab === 'lang') {
+        container.innerHTML = `
+          <div class="flex flex-col gap-3 text-xs text-slate-400">
+            <div class="p-3 bg-surface-950 border border-slate-800 rounded-xl">
+              <h3 class="text-xs font-semibold text-white mb-2">底层算法与非自回归特性：</h3>
+              <ul class="list-disc pl-4 space-y-1.5 text-slate-300 leading-relaxed">
+                <li><strong class="text-brand-300">语言检测 (detect_language):</strong> 零依赖高精度文本语言分析。</li>
+                <li><strong class="text-brand-300">字符系统 (detect_script):</strong> 区分汉字、拉丁、西里尔、阿拉伯等文字系统。</li>
+                <li><strong class="text-brand-300">邮件清洗 (clean_email_body):</strong> 智能分离正文与落款/免责声明。</li>
+                <li><strong class="text-brand-300">Router 路由推荐:</strong> 分析文本结构与字符比例，自动决定使用哪个检查点。</li>
+              </ul>
+            </div>
+            <p class="text-[11px] text-slate-500">点击上方快捷示例体验不同语种（中文、英文长邮件、西语、法语）的清洗与智能路由分析。</p>
+          </div>
+        `;
+      } else if (tab === 'complex') {
+        container.innerHTML = `
+          <div class="flex flex-col gap-3 text-xs">
+            <div class="p-3 bg-surface-950 border border-slate-800 rounded-xl text-slate-300 leading-relaxed">
+              <h3 class="text-xs font-semibold text-white mb-1.5">复杂输入状态说明 (Complex State)</h3>
+              <p class="text-slate-400 text-xs">Laya 不仅支持普通字符串，还能直接将包含键值属性的字典（Dict）或多轮对话历史（Chat Messages）作为 State 送入模型，并在一次前向计算中提取决策。</p>
+            </div>
+            <p class="text-[11px] text-slate-500">上方提供了「结构化运维字典状态」与「多轮机票客服对话」两个典型示例，点击即可一键加载体验。</p>
+          </div>
+        `;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // SHORTLIST VISUAL BUILDER
+    // -------------------------------------------------------------
+
+    function renderShortlistCriteriaList() {
+      const container = document.getElementById('shortlist-criteria-list');
+      if (!container) return;
+
+      container.innerHTML = visualShortlistCriteria.map((c, idx) => `
+        <div class="p-2 bg-surface-950 border border-slate-800 rounded-lg flex items-center justify-between gap-2 text-xs">
+          <input type="text" value="${escapeHtml(c.label)}" onchange="visualShortlistCriteria[${idx}].label=this.value" class="bg-surface-900 border border-slate-800 rounded px-2 py-1 text-xs text-brand-300 font-mono w-28 sm:w-36 font-semibold" placeholder="标签Key">
+          <input type="text" value="${escapeHtml(c.desc)}" onchange="visualShortlistCriteria[${idx}].desc=this.value" class="bg-surface-900 border border-slate-800 rounded px-2 py-1 text-xs text-slate-300 flex-1" placeholder="该选项的描述与使用条件">
+          <button onclick="removeShortlistCandidate(${idx})" class="text-slate-500 hover:text-red-400 px-1 text-xs">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function addShortlistCandidate() {
+      visualShortlistCriteria.push({
+        label: `option_${visualShortlistCriteria.length + 1}`,
+        desc: '选项描述说明'
+      });
+      renderShortlistCriteriaList();
+    }
+
+    function removeShortlistCandidate(idx) {
+      visualShortlistCriteria.splice(idx, 1);
+      renderShortlistCriteriaList();
+    }
+
+    function importShortlistCriteria(criteriaObj) {
+      visualShortlistCriteria = [];
+      if (!criteriaObj) return;
+      for (const [label, desc] of Object.entries(criteriaObj)) {
+        visualShortlistCriteria.push({ label, desc: desc || '' });
+      }
+      renderShortlistCriteriaList();
+    }
+
+    function compileShortlistCriteria() {
+      const res = {};
+      visualShortlistCriteria.forEach(c => {
+        if (c.label) res[c.label] = c.desc || null;
+      });
+      return res;
+    }
+
+    // -------------------------------------------------------------
+    // EXAMPLE PILLS HANDLING
+    // -------------------------------------------------------------
+
+    function renderExamplePills(tab) {
+      const container = document.getElementById('example-pills-container');
+      container.innerHTML = '';
+      if (!examplesData) return;
+
+      if (tab === 'structured' && examplesData.structured) {
+        examplesData.structured.forEach((ex, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${idx === 0 ? 'bg-brand-500/20 border-brand-500 text-brand-300' : 'bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600'}`;
+          btn.textContent = ex.title;
+          btn.onclick = () => loadStructuredExample(ex, btn);
+          container.appendChild(btn);
+        });
+        if (examplesData.structured[0]) {
+          loadStructuredExample(examplesData.structured[0], container.children[0]);
+        }
+      } else if (tab === 'presets' && examplesData.presets) {
+        renderPresetExamples('triage');
+      } else if (tab === 'shortlist' && examplesData.shortlist) {
+        examplesData.shortlist.forEach((ex, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${idx === 0 ? 'bg-brand-500/20 border-brand-500 text-brand-300' : 'bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600'}`;
+          btn.textContent = ex.title;
+          btn.onclick = () => loadShortlistExample(ex, btn);
+          container.appendChild(btn);
+        });
+        if (examplesData.shortlist[0]) {
+          loadShortlistExample(examplesData.shortlist[0], container.children[0]);
+        }
+      } else if (tab === 'lang' && examplesData.lang) {
+        examplesData.lang.forEach((ex, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${idx === 0 ? 'bg-brand-500/20 border-brand-500 text-brand-300' : 'bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600'}`;
+          btn.textContent = ex.title;
+          btn.onclick = () => {
+            highlightPill(btn);
+            document.getElementById('input-state').value = ex.text;
+          };
+          container.appendChild(btn);
+        });
+        if (examplesData.lang[0]) {
+          document.getElementById('input-state').value = examplesData.lang[0].text;
+        }
+      } else if (tab === 'complex' && examplesData.complex_state) {
+        examplesData.complex_state.forEach((ex, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${idx === 0 ? 'bg-brand-500/20 border-brand-500 text-brand-300' : 'bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600'}`;
+          btn.textContent = ex.title;
+          btn.onclick = () => loadComplexExample(ex, btn);
+          container.appendChild(btn);
+        });
+        if (examplesData.complex_state[0]) {
+          loadComplexExample(examplesData.complex_state[0], container.children[0]);
+        }
+      }
+    }
+
+    function highlightPill(btn) {
+      document.querySelectorAll('#example-pills-container button').forEach(b => {
+        b.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium border bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600 transition';
+      });
+      btn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium border bg-brand-500/20 border-brand-500 text-brand-300 transition';
+    }
+
+    function selectPreset(name) {
+      document.querySelectorAll('.preset-sel-btn').forEach(b => {
+        b.className = 'preset-sel-btn p-2.5 rounded-lg border border-slate-800 bg-surface-950 text-left hover:border-slate-700 transition';
+      });
+      const active = document.getElementById(`preset-btn-${name}`);
+      if (active) {
+        active.className = 'preset-sel-btn p-2.5 rounded-lg border border-brand-500 bg-brand-500/10 text-left transition';
+      }
+      document.getElementById('active-preset-name').value = name;
+      renderPresetExamples(name);
+    }
+
+    function renderPresetExamples(name) {
+      const container = document.getElementById('example-pills-container');
+      container.innerHTML = '';
+      const list = (examplesData && examplesData.presets) ? examplesData.presets[name] : [];
+      if (!list) return;
+      list.forEach((item, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${idx === 0 ? 'bg-brand-500/20 border-brand-500 text-brand-300' : 'bg-surface-800 border-slate-700/60 text-slate-300 hover:border-slate-600'}`;
+        btn.textContent = item.title;
+        btn.onclick = () => {
+          highlightPill(btn);
+          document.getElementById('input-state').value = item.text;
+        };
+        container.appendChild(btn);
+      });
+      if (list[0]) {
+        document.getElementById('input-state').value = list[0].text;
+      }
+    }
+
+    function loadStructuredExample(ex, btn) {
+      highlightPill(btn);
+      document.getElementById('input-state').value = typeof ex.state === 'string' ? ex.state : JSON.stringify(ex.state, null, 2);
+      importSchemaToVisualFields(ex.schema);
+      if (ex.min_confidence !== undefined) {
+        const slider = document.getElementById('min-conf-slider');
+        if (slider) {
+          slider.value = ex.min_confidence;
+          document.getElementById('min-conf-val').textContent = ex.min_confidence;
+        }
+      }
+    }
+
+    function loadShortlistExample(ex, btn) {
+      highlightPill(btn);
+      document.getElementById('input-state').value = typeof ex.state === 'string' ? ex.state : JSON.stringify(ex.state, null, 2);
+      document.getElementById('shortlist-instructions').value = ex.instructions;
+      document.getElementById('shortlist-k').value = ex.k || 3;
+      document.getElementById('shortlist-k-val').textContent = ex.k || 3;
+      importShortlistCriteria(ex.criteria);
+    }
+
+    function loadComplexExample(ex, btn) {
+      highlightPill(btn);
+      document.getElementById('input-state').value = JSON.stringify(ex.state, null, 2);
+    }
+
+    function clearStateInput() {
+      document.getElementById('input-state').value = '';
+    }
+
+    function parseStateValue() {
+      const raw = document.getElementById('input-state').value.trim();
+      if (!raw) return "";
+      if ((raw.startsWith('{') && raw.endsWith('}')) || (raw.startsWith('[') && raw.endsWith(']'))) {
+        try {
+          return JSON.parse(raw);
+        } catch (e) {
+          return raw;
+        }
+      }
+      return raw;
+    }
+
+    // -------------------------------------------------------------
+    // EXECUTE INFERENCE
+    // -------------------------------------------------------------
+
+    async function executeInference() {
+      const state = parseStateValue();
+      if (!state && state !== 0) {
+        showToast('请输入待评估的状态 (State)', true);
+        return;
+      }
+
+      setLoading(true);
+      const rawOutputEl = document.getElementById('raw-json-output');
+
+      try {
+        let endpoint = '';
+        let payload = {};
+
+        if (currentTab === 'structured') {
+          endpoint = '/api/structured/decide';
+          const schemaObj = compileVisualSchema();
+          const minConf = parseFloat(document.getElementById('min-conf-slider').value);
+          payload = {
+            state: state,
+            schema: schemaObj,
+            min_confidence: minConf > 0 ? minConf : null,
+            return_details: true
+          };
+        } else if (currentTab === 'presets') {
+          endpoint = '/api/predict/preset';
+          const presetName = document.getElementById('active-preset-name').value;
+          payload = { state: state, preset_name: presetName };
+        } else if (currentTab === 'shortlist') {
+          endpoint = '/api/shortlist';
+          const instructions = document.getElementById('shortlist-instructions').value;
+          const k = parseInt(document.getElementById('shortlist-k').value, 10);
+          const criteriaObj = compileShortlistCriteria();
+          payload = {
+            state: state,
+            instructions: instructions,
+            k: k,
+            criteria: criteriaObj
+          };
+        } else if (currentTab === 'lang') {
+          endpoint = '/api/lang/analyze';
+          payload = { state: state };
+        } else if (currentTab === 'complex') {
+          endpoint = '/api/predict/preset';
+          payload = { state: state, preset_name: 'triage' };
+        }
+
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || '推理请求失败');
+        }
+
+        rawOutputEl.textContent = JSON.stringify(data, null, 2);
+        renderVisualResults(data, currentTab);
+        updateMetrics(data);
+        showToast('推理成功完成');
+
+      } catch (err) {
+        console.error('Inference error:', err);
+        rawOutputEl.textContent = '// 错误:\n' + err.message;
+        renderError(err.message);
+        showToast(err.message, true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function setLoading(isLoading) {
+      const btn = document.getElementById('run-btn');
+      const spinner = document.getElementById('run-spinner');
+      const text = document.getElementById('run-btn-text');
+      if (isLoading) {
+        btn.disabled = true;
+        spinner.classList.remove('hidden');
+        text.textContent = 'MLX 计算推理中...';
+      } else {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+        text.textContent = '立即运行推理 (Run Inference)';
+      }
+    }
+
+    function updateMetrics(data) {
+      if (data.latency_ms !== undefined) {
+        document.getElementById('metric-latency').textContent = `${data.latency_ms} ms`;
+        document.getElementById('global-latency-text').textContent = `${data.latency_ms} ms`;
+      }
+      if (data.usage && data.usage.input_tokens !== undefined) {
+        document.getElementById('metric-in-tokens').textContent = data.usage.input_tokens;
+      }
+    }
+
+    function renderError(msg) {
+      const area = document.getElementById('visual-results-area');
+      area.innerHTML = `
+        <div class="w-full bg-red-950/40 border border-red-800/80 rounded-xl p-4 text-red-200">
+          <div class="flex items-center gap-2 font-bold mb-1 text-sm text-red-300">
+            <span>⚠ 推理异常或 Schema 校验失败</span>
+          </div>
+          <p class="text-xs font-mono leading-relaxed">${escapeHtml(msg)}</p>
+        </div>
+      `;
+      document.getElementById('result-status-tag').textContent = '错误';
+      document.getElementById('result-status-tag').className = 'text-[11px] px-2 py-0.5 rounded bg-red-900/60 text-red-300 border border-red-700/50';
+    }
+
+    // -------------------------------------------------------------
+    // RENDER VISUAL RESULTS
+    // -------------------------------------------------------------
+
+    function renderVisualResults(data, tab) {
+      const area = document.getElementById('visual-results-area');
+      area.className = 'w-full flex flex-col gap-4';
+      document.getElementById('result-status-tag').textContent = '推理完成';
+      document.getElementById('result-status-tag').className = 'text-[11px] px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-300 border border-emerald-700/50 font-medium';
+
+      if (tab === 'structured') {
+        renderStructuredVisual(data, area);
+      } else if (tab === 'presets' || tab === 'complex') {
+        renderPresetVisual(data, area);
+      } else if (tab === 'shortlist') {
+        renderShortlistVisual(data, area);
+      } else if (tab === 'lang') {
+        renderLangVisual(data, area);
+      }
+    }
+
+    function renderStructuredVisual(data, container) {
+      const values = data.values || {};
+      const confidence = data.confidence || {};
+      const probabilities = data.probabilities || {};
+
+      let html = `
+        <!-- Projected typed values banner -->
+        <div class="bg-surface-950 border border-slate-800 rounded-xl p-4">
+          <div class="text-xs font-semibold text-slate-400 mb-2.5 flex items-center justify-between">
+            <span class="text-white flex items-center gap-2">
+              <span>🎯 强类型推理决策值 (Projected Typed Values)</span>
+            </span>
+            <span class="text-[11px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">单次前向通过</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      `;
+
+      for (const [key, val] of Object.entries(values)) {
+        const conf = confidence[key] !== undefined ? (confidence[key] * 100).toFixed(1) : null;
+        let badgeColor = 'bg-slate-800 text-slate-300';
+        if (conf !== null) {
+          if (conf >= 80) badgeColor = 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          else if (conf >= 50) badgeColor = 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          else badgeColor = 'bg-red-500/20 text-red-400 border border-red-500/30';
+        }
+
+        let valDisplay = String(val);
+        let valColor = 'text-white font-bold';
+        if (typeof val === 'boolean') {
+          valColor = val ? 'text-emerald-400 font-bold' : 'text-slate-400 font-bold';
+        } else if (typeof val === 'number') {
+          valColor = 'text-indigo-400 font-bold';
+        } else if (val === null) {
+          valColor = 'text-red-400 italic';
+          valDisplay = 'null (低于置信门控)';
+        }
+
+        html += `
+          <div class="p-3 bg-surface-900 border border-slate-800/80 rounded-lg flex flex-col justify-between">
+            <div class="text-[11px] text-slate-400 font-mono mb-1 truncate">${escapeHtml(key)}</div>
+            <div class="text-base ${valColor} truncate font-mono">${escapeHtml(valDisplay)}</div>
+            ${conf !== null ? `
+              <div class="mt-2 pt-1.5 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+                <span class="text-slate-500">置信度:</span>
+                <span class="px-1.5 py-0.2 rounded font-mono font-semibold ${badgeColor}">${conf}%</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      html += `</div></div>`;
+
+      // Probability distributions cards
+      html += `<div class="space-y-3">`;
+      for (const [key, probs] of Object.entries(probabilities)) {
+        html += `
+          <div class="bg-surface-950 border border-slate-800 rounded-xl p-3.5">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-300 mb-2">
+              <span class="font-mono text-brand-400">${escapeHtml(key)} 概率分布</span>
+              <span class="text-[11px] text-slate-500">归一化概率</span>
+            </div>
+            <div class="space-y-1.5">
+        `;
+
+        for (const [label, p] of Object.entries(probs)) {
+          const pct = (p * 100).toFixed(1);
+          const isWinner = values[key] !== null && (String(values[key]) === String(label) || (typeof values[key] === 'boolean' && String(values[key]) === String(label)));
+          html += `
+            <div class="text-xs">
+              <div class="flex items-center justify-between text-[11px] mb-0.5">
+                <span class="font-mono ${isWinner ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${escapeHtml(label)}</span>
+                <span class="font-mono ${isWinner ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${pct}%</span>
+              </div>
+              <div class="w-full bg-surface-800 rounded-full h-1.5 overflow-hidden">
+                <div class="h-1.5 rounded-full ${isWinner ? 'bg-emerald-500' : 'bg-slate-700'}" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }
+        html += `</div></div>`;
+      }
+      html += `</div>`;
+
+      container.innerHTML = html;
+    }
+
+    function renderPresetVisual(data, container) {
+      const presetName = data.preset_name || 'triage';
+      const answers = data.answers || {};
+
+      let html = `
+        <div class="bg-surface-950 border border-slate-800 rounded-xl p-3.5 mb-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-300">业务模块: <span class="font-mono text-brand-400 uppercase font-bold">${escapeHtml(presetName)}</span></span>
+            <span class="text-xs text-emerald-400 font-mono">5个维度联合一次性判定</span>
+          </div>
+        </div>
+      `;
+
+      html += `<div class="space-y-3">`;
+
+      for (const [qid, ans] of Object.entries(answers)) {
+        const type = ans.type;
+        const conf = ans.confidence !== undefined ? (ans.confidence * 100).toFixed(1) : null;
+        let mainText = '';
+        let badgeColor = 'bg-brand-500/20 text-brand-400 border border-brand-500/30';
+
+        if (type === 'choice') {
+          mainText = `Choice: <strong class="text-emerald-400 font-mono">${escapeHtml(ans.choice)}</strong>`;
+        } else if (type === 'score') {
+          mainText = `Score: <strong class="text-indigo-400 font-mono">${ans.score}</strong>`;
+        } else if (type === 'noul') {
+          const isTrue = ans.noul >= 0.5;
+          mainText = `Noul: <strong class="${isTrue ? 'text-emerald-400' : 'text-slate-400'} font-mono">${isTrue ? 'True (是)' : 'False (否)'}</strong> <span class="text-xs text-slate-500 font-mono">(${ans.noul})</span>`;
+        }
+
+        html += `
+          <div class="bg-surface-950 border border-slate-800 rounded-xl p-4">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-800/80 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-bold text-white">${escapeHtml(qid)}</span>
+                <span class="text-[10px] px-2 py-0.5 rounded uppercase font-semibold ${badgeColor}">${escapeHtml(type)}</span>
+              </div>
+              ${conf !== null ? `
+                <div class="text-xs text-slate-400 flex items-center gap-1.5">
+                  <span>置信度:</span>
+                  <span class="font-mono font-bold text-emerald-400">${conf}%</span>
+                </div>
+              ` : ''}
+            </div>
+            
+            <div class="text-sm mb-3">${mainText}</div>
+        `;
+
+        if (ans.probabilities) {
+          html += `<div class="space-y-1.5 pt-1">`;
+          for (const [opt, p] of Object.entries(ans.probabilities)) {
+            const pct = (p * 100).toFixed(1);
+            const isWinner = (type === 'choice' && opt === ans.choice) || (type === 'score' && String(opt) === String(Math.round(ans.score)));
+            html += `
+              <div class="text-xs">
+                <div class="flex items-center justify-between text-[11px] mb-0.5">
+                  <span class="font-mono ${isWinner ? 'text-emerald-400 font-semibold' : 'text-slate-400'}">${escapeHtml(opt)}</span>
+                  <span class="font-mono ${isWinner ? 'text-emerald-400 font-semibold' : 'text-slate-500'}">${pct}%</span>
+                </div>
+                <div class="w-full bg-surface-800 rounded-full h-1.5 overflow-hidden">
+                  <div class="h-1.5 rounded-full ${isWinner ? 'bg-emerald-500' : 'bg-slate-700'}" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }
+          html += `</div>`;
+        }
+
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function renderShortlistVisual(data, container) {
+      const meta = data.shortlist && data.shortlist.top_choice ? data.shortlist.top_choice : null;
+      const ans = data.answers && data.answers.top_choice ? data.answers.top_choice : null;
+
+      let html = `<div class="space-y-4">`;
+
+      if (meta) {
+        html += `
+          <div class="bg-surface-950 border border-slate-800 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-white">向量初筛阶段 (Embedding Shortlist)</span>
+              <span class="text-xs font-mono text-brand-400">总候选数: ${meta.n} ➔ 保留 Top-${meta.k}</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">通过余弦相似度快速过滤出最相关的候选：</p>
+            <div class="space-y-2">
+        `;
+
+        meta.labels.forEach((lbl, idx) => {
+          const score = meta.scores && meta.scores[idx] !== undefined ? (meta.scores[idx] * 100).toFixed(1) : null;
+          const isFinal = ans && ans.choice === lbl;
+          html += `
+            <div class="p-2.5 rounded-lg border ${isFinal ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-slate-800 bg-surface-900'} flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-surface-800 border border-slate-700 flex items-center justify-center font-mono text-[10px] text-slate-300 font-bold">${idx + 1}</span>
+                <span class="font-mono ${isFinal ? 'text-emerald-400 font-bold' : 'text-slate-300'}">${escapeHtml(lbl)}</span>
+                ${isFinal ? '<span class="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-bold">最终裁定</span>' : ''}
+              </div>
+              ${score !== null ? `<span class="font-mono text-slate-400 text-xs">余弦相似度: <strong class="text-white">${score}%</strong></span>` : ''}
+            </div>
+          `;
+        });
+
+        html += `</div></div>`;
+      }
+
+      if (ans) {
+        html += `
+          <div class="bg-surface-950 border border-emerald-500/40 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-white">Laya 模型最终选择决策</span>
+              <span class="text-xs font-mono text-emerald-400 font-bold">置信度: ${(ans.confidence * 100).toFixed(1)}%</span>
+            </div>
+            <div class="text-lg font-bold font-mono text-emerald-400 mb-2">${escapeHtml(ans.choice)}</div>
+        `;
+
+        if (ans.probabilities) {
+          html += `<div class="space-y-1.5 pt-2 border-t border-slate-800">`;
+          for (const [lbl, p] of Object.entries(ans.probabilities)) {
+            const pct = (p * 100).toFixed(1);
+            const isWinner = lbl === ans.choice;
+            html += `
+              <div class="text-xs">
+                <div class="flex items-center justify-between text-[11px] mb-0.5">
+                  <span class="font-mono ${isWinner ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${escapeHtml(lbl)}</span>
+                  <span class="font-mono ${isWinner ? 'text-emerald-400 font-bold' : 'text-slate-500'}">${pct}%</span>
+                </div>
+                <div class="w-full bg-surface-800 rounded-full h-1.5 overflow-hidden">
+                  <div class="h-1.5 rounded-full ${isWinner ? 'bg-emerald-500' : 'bg-slate-700'}" style="width: ${pct}%"></div>
+                </div>
+              </div>
+            `;
+          }
+          html += `</div>`;
+        }
+
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function renderLangVisual(data, container) {
+      const analysis = data.analysis || {};
+      const script = data.script || 'unknown';
+      const isEnglish = data.is_english;
+      const cleaned = data.cleaned_body || '';
+      const route = data.route || {};
+
+      let html = `
+        <div class="space-y-4">
+          <!-- Language & Script Badges -->
+          <div class="bg-surface-950 border border-slate-800 rounded-xl p-4">
+            <div class="text-xs font-semibold text-white mb-3">语种与文字系统分析 (Language & Script)</div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div class="bg-surface-900 border border-slate-800 p-2.5 rounded-lg">
+                <div class="text-slate-500 text-[11px]">识别语种 (Language)</div>
+                <div class="font-mono font-bold text-white text-sm mt-0.5 uppercase">${escapeHtml(analysis.language || '未知')}</div>
+              </div>
+              <div class="bg-surface-900 border border-slate-800 p-2.5 rounded-lg">
+                <div class="text-slate-500 text-[11px]">文字系统 (Script)</div>
+                <div class="font-mono font-bold text-indigo-400 text-sm mt-0.5 uppercase">${escapeHtml(script)}</div>
+              </div>
+              <div class="bg-surface-900 border border-slate-800 p-2.5 rounded-lg">
+                <div class="text-slate-500 text-[11px]">是否英语 (Is English)</div>
+                <div class="font-mono font-bold ${isEnglish ? 'text-emerald-400' : 'text-amber-400'} text-sm mt-0.5">${isEnglish ? 'YES (是)' : 'NO (否)'}</div>
+              </div>
+              <div class="bg-surface-900 border border-slate-800 p-2.5 rounded-lg">
+                <div class="text-slate-500 text-[11px]">非拉丁字符占比</div>
+                <div class="font-mono font-bold text-slate-300 text-sm mt-0.5">${((analysis.non_latin_fraction || 0) * 100).toFixed(1)}%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Router Routing Decision -->
+          <div class="bg-surface-950 border border-brand-500/40 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-white">Laya Router 智能路由判定</span>
+              <span class="text-xs font-mono bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded border border-brand-500/30 uppercase font-bold">${escapeHtml(route.model || 'auto')}</span>
+            </div>
+            <div class="text-xs text-slate-300 leading-relaxed font-mono bg-surface-900 p-2.5 rounded border border-slate-800/80">
+              <span class="text-slate-500 font-sans">路由原因: </span>${escapeHtml(route.reason || '无')}
+            </div>
+          </div>
+
+          <!-- Cleaned Body Preview -->
+          <div class="bg-surface-950 border border-slate-800 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold text-slate-300">邮件清洗结果 (Cleaned Body - 剔除免责声明与落款)</span>
+              <span class="text-[11px] text-slate-500">clean_email_body()</span>
+            </div>
+            <pre class="mono text-xs text-emerald-300 bg-surface-900 p-3 rounded-lg border border-slate-800 whitespace-pre-wrap">${escapeHtml(cleaned)}</pre>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    function copyOutputJson() {
+      const text = document.getElementById('raw-json-output').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('JSON 响应已复制到剪贴板');
+      });
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>

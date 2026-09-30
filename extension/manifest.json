@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "小红书自媒体运营打标助手 (Laya MLX)",
+  "version": "1.0.0",
+  "description": "基于本地 Laya MLX 决策引擎，实时自动对小红书笔记进行赛道分类、选题切角、商业变现意图与爆款潜力打标，支持懒加载瀑布流更新。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:8088/*",
+    "http://127.0.0.1:8088/*",
+    "*://*.xiaohongshu.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Laya MLX 打标助手设置",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.xiaohongshu.com/*",
+        "*://xiaohongshu.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["style.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

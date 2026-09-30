@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>Laya MLX 小红书打标助手</title>
+  <style>
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      font-size: 13px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+      margin-bottom: 14px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo {
+      width: 26px;
+      height: 26px;
+      background: #ff2442;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #fff;
+      font-size: 14px;
+    }
+    .title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+    .subtitle {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-bottom: 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      box-sizing: border-box;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: #f8fafc;
+      font-size: 12px;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #ff2442;
+    }
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-cols: 1fr 1fr;
+      gap: 8px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #cbd5e1;
+      cursor: pointer;
+    }
+    .checkbox-item input {
+      accent-color: #ff2442;
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: #ff2442;
+      color: white;
+      margin-bottom: 8px;
+    }
+    .btn-primary:hover {
+      background: #e01b38;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+    .footer-link {
+      display: block;
+      text-align: center;
+      font-size: 11px;
+      color: #60a5fa;
+      text-decoration: none;
+      margin-top: 10px;
+    }
+    .footer-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="logo">小</div>
+      <div>
+        <div class="title">Laya MLX 打标助手</div>
+        <div class="subtitle">小红书自媒体运营决策引擎</div>
+      </div>
+    </div>
+    <div id="conn-status" class="status-badge">
+      <span class="status-dot"></span>
+      <span id="conn-text">检测中</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span>服务连接配置</span>
+      <span id="model-badge" style="font-size: 10px; color: #38bdf8;">MLX Metal</span>
+    </div>
+    <div class="form-group">
+      <label for="api-url">本地 Laya MLX 服务地址:</label>
+      <input type="text" id="api-url" value="http://localhost:8088">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">显示维度偏好设置</div>
+    <div class="checkbox-grid">
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-track" checked>
+        <span>赛道垂直分类</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-format" checked>
+        <span>选题切入形态</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-ad" checked>
+        <span>商单与种草标记</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-viral" checked>
+        <span>爆款潜力评级</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-clickbait" checked>
+        <span style="color:#f87171; font-weight:600;">🚨 标题党风险识别</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="show-audience" checked>
+        <span>受众人群画像</span>
+      </label>
+      <label class="checkbox-item">
+        <input type="checkbox" id="auto-enabled" checked>
+        <span>启用自动打标</span>
+      </label>
+    </div>
+  </div>
+
+  <button id="save-btn" class="btn btn-primary">保存配置并重新扫描</button>
+  <button id="open-studio-btn" class="btn btn-secondary">打开 Laya MLX Studio 仪表盘</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+[project]
+name = "laya-stack"
+version = "0.1.0"
+description = "System One & Decision Model Full-Stack Suite & DecisionBench on Apple Silicon MLX"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [
+    { name = "spaxfiz" }
+]
+keywords = [
+    "system-one",
+    "decision-models",
+    "laya",
+    "mlx",
+    "apple-silicon",
+    "benchmark",
+    "evaluation"
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141.1",
+    "pydantic>=2.13.5",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+laya-stack = "laya_stack:main"
+
+[build-system]
+requires = ["uv_build>=0.12.18,<0.13.0"]
+build-backend = "uv_build"

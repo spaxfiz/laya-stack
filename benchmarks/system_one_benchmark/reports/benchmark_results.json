@@ -1,0 +1,426 @@
+{
+  "timestamp": "2026-09-30T15:15:31.865871",
+  "dataset_size": 1024,
+  "engines": [
+    {
+      "name": "Native-Laya-MLX (Python SDK)",
+      "description": "In-process MLX DecisionModel with 2-layer Cross-Attention Head & Scorer",
+      "accuracy": {
+        "engine_name": "Native-Laya-MLX (Python SDK)",
+        "engine_desc": "In-process MLX DecisionModel with 2-layer Cross-Attention Head & Scorer",
+        "total_evaluated": 1024,
+        "total_time_sec": 17.22,
+        "avg_throughput_qps": 59.5,
+        "accuracy": 0.6406,
+        "macro_f1": 0.6631,
+        "macro_precision": 0.6861,
+        "macro_recall": 0.6909,
+        "adversarial_accuracy": 0.75,
+        "adversarial_count": 8,
+        "ece": 0.1368,
+        "per_class": {
+          "科技数码": {
+            "precision": 0.4476,
+            "recall": 0.9495,
+            "f1": 0.6084,
+            "support": 99
+          },
+          "萌宠动物": {
+            "precision": 0.4054,
+            "recall": 0.411,
+            "f1": 0.4082,
+            "support": 73
+          },
+          "美妆护肤": {
+            "precision": 0.8,
+            "recall": 0.7097,
+            "f1": 0.7521,
+            "support": 62
+          },
+          "穿搭时尚": {
+            "precision": 0.7361,
+            "recall": 0.8548,
+            "f1": 0.791,
+            "support": 62
+          },
+          "美食探店": {
+            "precision": 0.717,
+            "recall": 0.5846,
+            "f1": 0.6441,
+            "support": 65
+          },
+          "职场成长": {
+            "precision": 0.8776,
+            "recall": 0.6935,
+            "f1": 0.7748,
+            "support": 62
+          },
+          "家居生活": {
+            "precision": 0.6289,
+            "recall": 0.9683,
+            "f1": 0.7625,
+            "support": 63
+          },
+          "运动健康": {
+            "precision": 0.8049,
+            "recall": 0.5323,
+            "f1": 0.6408,
+            "support": 62
+          },
+          "母婴育儿": {
+            "precision": 0.6615,
+            "recall": 0.6825,
+            "f1": 0.6719,
+            "support": 63
+          },
+          "旅游出行": {
+            "precision": 0.9504,
+            "recall": 0.4212,
+            "f1": 0.5838,
+            "support": 273
+          },
+          "情感心理": {
+            "precision": 0.8088,
+            "recall": 0.873,
+            "f1": 0.8397,
+            "support": 63
+          },
+          "摄影剪辑": {
+            "precision": 0.395,
+            "recall": 0.6104,
+            "f1": 0.4796,
+            "support": 77
+          }
+        }
+      },
+      "latency": {
+        "total_requests": 100,
+        "total_time_sec": 1.613,
+        "rps": 62.01,
+        "mean_ms": 16.13,
+        "median_ms": 16.11,
+        "p90_ms": 16.79,
+        "p95_ms": 17.71,
+        "p99_ms": 22.49,
+        "min_ms": 13.63,
+        "max_ms": 23.65,
+        "std_ms": 1.45,
+        "cold_latency_ms": 136.57,
+        "engine_name": "Native-Laya-MLX (Python SDK)"
+      },
+      "concurrency": {
+        "engine_name": "Native-Laya-MLX (Python SDK)",
+        "concurrency_results": {
+          "1": {
+            "concurrency": 1,
+            "total_time_sec": 0.816,
+            "rps": 61.3,
+            "p50_latency_ms": 16.0,
+            "p95_latency_ms": 17.54
+          },
+          "2": {
+            "concurrency": 2,
+            "total_time_sec": 0.636,
+            "rps": 78.7,
+            "p50_latency_ms": 24.98,
+            "p95_latency_ms": 27.1
+          },
+          "4": {
+            "concurrency": 4,
+            "total_time_sec": 0.625,
+            "rps": 80.1,
+            "p50_latency_ms": 49.56,
+            "p95_latency_ms": 59.59
+          },
+          "8": {
+            "concurrency": 8,
+            "total_time_sec": 0.657,
+            "rps": 76.1,
+            "p50_latency_ms": 99.31,
+            "p95_latency_ms": 146.58
+          }
+        }
+      }
+    },
+    {
+      "name": "Rapid-MLX System-One (HTTP API)",
+      "description": "Rapid-MLX Standalone Daemon on http://127.0.0.1:8700 (First-class LayaBackend)",
+      "accuracy": {
+        "engine_name": "Rapid-MLX System-One (HTTP API)",
+        "engine_desc": "Rapid-MLX Standalone Daemon on http://127.0.0.1:8700 (First-class LayaBackend)",
+        "total_evaluated": 1024,
+        "total_time_sec": 20.88,
+        "avg_throughput_qps": 49.0,
+        "accuracy": 0.6406,
+        "macro_f1": 0.6631,
+        "macro_precision": 0.6861,
+        "macro_recall": 0.6909,
+        "adversarial_accuracy": 0.75,
+        "adversarial_count": 8,
+        "ece": 0.1368,
+        "per_class": {
+          "科技数码": {
+            "precision": 0.4476,
+            "recall": 0.9495,
+            "f1": 0.6084,
+            "support": 99
+          },
+          "萌宠动物": {
+            "precision": 0.4054,
+            "recall": 0.411,
+            "f1": 0.4082,
+            "support": 73
+          },
+          "美妆护肤": {
+            "precision": 0.8,
+            "recall": 0.7097,
+            "f1": 0.7521,
+            "support": 62
+          },
+          "穿搭时尚": {
+            "precision": 0.7361,
+            "recall": 0.8548,
+            "f1": 0.791,
+            "support": 62
+          },
+          "美食探店": {
+            "precision": 0.717,
+            "recall": 0.5846,
+            "f1": 0.6441,
+            "support": 65
+          },
+          "职场成长": {
+            "precision": 0.8776,
+            "recall": 0.6935,
+            "f1": 0.7748,
+            "support": 62
+          },
+          "家居生活": {
+            "precision": 0.6289,
+            "recall": 0.9683,
+            "f1": 0.7625,
+            "support": 63
+          },
+          "运动健康": {
+            "precision": 0.8049,
+            "recall": 0.5323,
+            "f1": 0.6408,
+            "support": 62
+          },
+          "母婴育儿": {
+            "precision": 0.6615,
+            "recall": 0.6825,
+            "f1": 0.6719,
+            "support": 63
+          },
+          "旅游出行": {
+            "precision": 0.9504,
+            "recall": 0.4212,
+            "f1": 0.5838,
+            "support": 273
+          },
+          "情感心理": {
+            "precision": 0.8088,
+            "recall": 0.873,
+            "f1": 0.8397,
+            "support": 63
+          },
+          "摄影剪辑": {
+            "precision": 0.395,
+            "recall": 0.6104,
+            "f1": 0.4796,
+            "support": 77
+          }
+        }
+      },
+      "latency": {
+        "total_requests": 100,
+        "total_time_sec": 1.685,
+        "rps": 59.33,
+        "mean_ms": 16.85,
+        "median_ms": 16.69,
+        "p90_ms": 17.65,
+        "p95_ms": 18.38,
+        "p99_ms": 21.09,
+        "min_ms": 15.32,
+        "max_ms": 22.91,
+        "std_ms": 1.07,
+        "cold_latency_ms": 42.67,
+        "engine_name": "Rapid-MLX System-One (HTTP API)"
+      },
+      "concurrency": {
+        "engine_name": "Rapid-MLX System-One (HTTP API)",
+        "concurrency_results": {
+          "1": {
+            "concurrency": 1,
+            "total_time_sec": 1.058,
+            "rps": 47.3,
+            "p50_latency_ms": 17.75,
+            "p95_latency_ms": 24.23
+          },
+          "2": {
+            "concurrency": 2,
+            "total_time_sec": 0.801,
+            "rps": 62.4,
+            "p50_latency_ms": 31.68,
+            "p95_latency_ms": 33.62
+          },
+          "4": {
+            "concurrency": 4,
+            "total_time_sec": 0.803,
+            "rps": 62.3,
+            "p50_latency_ms": 63.48,
+            "p95_latency_ms": 66.23
+          },
+          "8": {
+            "concurrency": 8,
+            "total_time_sec": 0.794,
+            "rps": 62.9,
+            "p50_latency_ms": 124.95,
+            "p95_latency_ms": 131.47
+          }
+        }
+      }
+    },
+    {
+      "name": "oMLX Bi-Encoder Embeddings (HTTP API)",
+      "description": "oMLX ModernBERT Sentence Embeddings with Cosine Similarity Matching",
+      "accuracy": {
+        "engine_name": "oMLX Bi-Encoder Embeddings (HTTP API)",
+        "engine_desc": "oMLX ModernBERT Sentence Embeddings with Cosine Similarity Matching",
+        "total_evaluated": 1024,
+        "total_time_sec": 0.25,
+        "avg_throughput_qps": 4086.4,
+        "accuracy": 0.0967,
+        "macro_f1": 0.0147,
+        "macro_precision": 0.0081,
+        "macro_recall": 0.0833,
+        "adversarial_accuracy": 0.125,
+        "adversarial_count": 8,
+        "ece": 0.0134,
+        "per_class": {
+          "科技数码": {
+            "precision": 0.0967,
+            "recall": 1.0,
+            "f1": 0.1763,
+            "support": 99
+          },
+          "萌宠动物": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 73
+          },
+          "美妆护肤": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 62
+          },
+          "穿搭时尚": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 62
+          },
+          "美食探店": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 65
+          },
+          "职场成长": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 62
+          },
+          "家居生活": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 63
+          },
+          "运动健康": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 62
+          },
+          "母婴育儿": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 63
+          },
+          "旅游出行": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 273
+          },
+          "情感心理": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 63
+          },
+          "摄影剪辑": {
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "support": 77
+          }
+        }
+      },
+      "latency": {
+        "total_requests": 100,
+        "total_time_sec": 0.029,
+        "rps": 3450.94,
+        "mean_ms": 0.29,
+        "median_ms": 0.26,
+        "p90_ms": 0.36,
+        "p95_ms": 0.43,
+        "p99_ms": 0.7,
+        "min_ms": 0.19,
+        "max_ms": 0.73,
+        "std_ms": 0.1,
+        "cold_latency_ms": 0.54,
+        "engine_name": "oMLX Bi-Encoder Embeddings (HTTP API)"
+      },
+      "concurrency": {
+        "engine_name": "oMLX Bi-Encoder Embeddings (HTTP API)",
+        "concurrency_results": {
+          "1": {
+            "concurrency": 1,
+            "total_time_sec": 0.017,
+            "rps": 2964.6,
+            "p50_latency_ms": 0.29,
+            "p95_latency_ms": 0.64
+          },
+          "2": {
+            "concurrency": 2,
+            "total_time_sec": 0.009,
+            "rps": 5394.9,
+            "p50_latency_ms": 0.35,
+            "p95_latency_ms": 0.44
+          },
+          "4": {
+            "concurrency": 4,
+            "total_time_sec": 0.007,
+            "rps": 7094.8,
+            "p50_latency_ms": 0.53,
+            "p95_latency_ms": 0.79
+          },
+          "8": {
+            "concurrency": 8,
+            "total_time_sec": 0.008,
+            "rps": 6573.1,
+            "p50_latency_ms": 0.97,
+            "p95_latency_ms": 2.23
+          }
+        }
+      }
+    }
+  ]
+}

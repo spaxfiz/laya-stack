@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decision-bench"
+version = "1.0.0"
+description = "Standardized Benchmark Suite for System One and Decision Models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "DecisionBench Authors" }
+]
+keywords = [
+    "system-one",
+    "decision-models",
+    "benchmark",
+    "evaluation",
+    "machine-learning",
+    "mlx",
+    "routing",
+    "classification"
+]
+dependencies = [
+    "pydantic>=2.0.0",
+    "click>=8.0.0",
+    "rich>=13.0.0",
+    "httpx>=0.25.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0"
+]
+mlx = [
+    "mlx>=0.20.0",
+    "laya-mlx"
+]
+
+[project.scripts]
+decision-bench = "decision_bench.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["decision_bench*"]
+
+[tool.setuptools.package-data]
+"decision_bench.dataset" = ["data/*.json"]
